@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>boom</title>
+    <style>
+        *{
+            margin: 0px;
+            padding: 0px;
+        }
+        body{
+            background-color: pink;
+        }
+
+        .box{
+            width:160px;
+            margin: 50px auto;
+            position: relative;
+            animation:bom 1s alternate infinite ;
+        }
+        .left,.right{
+            width: 100px;
+            height: 100px;
+            background-color: rgb(213,9,60);
+            border-radius:50%;
+            position: absolute;
+            box-shadow:0px 0px 50px 10px #d5093c ;
+
+        }
+        span{
+            color: #89898b;
+            animation:bom 0.5s alternate infinite ;
+        }
+        .left{
+            left:0;
+        }
+        .right{
+            right: 0;
+        }
+        .botoom{
+            width: 100px;
+            height: 100px;
+            background-color: rgb(213,9,60);
+            transform: rotate(45deg);
+            position: absolute;
+            top:30px ;
+            left:30px ;
+            box-shadow:0px 0px 50px 15px #d5093c ;
+            position: relative;
+
+        }
+@keyframes bom{
+    0%{
+        transform: scale(1);
+    }
+    100%{
+    transform: scale(1.5);
+    }
+}
+    </style>
+</head>
+<body>
+<div class="box">
+
+    <div class="left"></div>
+    <div class="right"> </div>
+    <div class="botoom"> <span>bing bing bing  </span></div>
+
+</div>
+</body>
+</html>

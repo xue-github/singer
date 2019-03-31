@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>随便听</title>
+    <style>
+        span{
+            color: white;
+            animation:bom 0.5s alternate infinite ;
+            font-size: larger;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        ul {
+            list-style: none;
+        }
+        body {
+         background-image: url("img/33333.png");
+        }
+        .box {
+            width: 500px;
+            padding: 20px;
+            border: 1px dashed #000;
+            margin: 50px auto;
+            font-size: 13px;
+            position: relative;
+        }
+        .kz{
+            position: absolute;
+            left: 25em;
+        }
+        .ctr-box {
+            width: 100%;
+            display: flex;
+        }
+        .ctr-pic {
+            width: 150px;
+            height: 150px;
+        }
+        .ctr-pic img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+        }
+        .ctr-body {
+            width: 350px;
+            height: 150px;
+        }
+        .singer {
+            margin: 30px 0 0 30px;
+        }
+        .bar {
+            width: 300px;
+            position: relative;
+            margin: 15px;
+        }
+        .total {
+            width: 200px;
+            height: 4px;
+            background-color: #070d8b;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .now {
+            width: 0px;
+            height: 4px;
+            background-color: blue;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+        .ctr-bar {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #7d7d7d;
+            position: absolute;
+            top: -3px;
+            left: 0;
+        }
+        .time {
+            position: absolute;
+            top: -8px;
+            right: 0;
+        }
+        .ctr-btn {
+            width: 200px;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            margin: 35px 20px 20px 20px;
+        }
+        .ctr-btn div {
+            background: url("img/222.png") no-repeat;
+        }
+        .ctr-btn .prev {
+            width: 20px;
+            height: 20px;
+            background-position-y: -30px;
+        }
+        .ctr-btn .start {
+            width: 20px;
+            height: 30px;
+
+        }
+        .ctr-btn .next {
+            width: 20px;
+            height: 20px;
+            background-position-y: -52px;
+        }
+        .ctr-btn .volume {
+            width: 30px;
+            height: 25px;
+            background-position-y: -141px;
+        }
+        .ctr-btn .mode {
+            width: 28px;
+            height: 23px;
+            background-position-y: -206px;
+        }
+        .bar-box {
+            width: 200px;
+            height: 4px;
+        }
+        .list-box {
+            width: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .list-box li {
+            height: 30px;
+            line-height: 30px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px dashed #666;
+        }
+        /*.active {*/
+            /*background-color: #ccc;*/
+        /*}*/
+
+
+    </style>
+</head>
+
+<body>
+
+<!--大盒子-->
+<div class="box">
+    <div class="kz">
+        <input placeholder="请在这里输入歌名" id="searTxt"><button id="searBtn">搜索</button>
+    </div>
+    <!--控制组件盒子-->
+    <div class="ctr-box">
+        <!--专辑封面-->
+        <div class="ctr-pic">
+            <img src="img/2.png" alt="">
+        </div>
+        <!--控制组件-->
+        <div class="ctr-body">
+            <!--歌曲名-->
+            <div class="singer">
+                <span>请输入歌名</span>
+            </div>
+            <!--控制条-->
+            <div class="bar">
+                <div class="bar-box">
+                    <div class="total"></div>
+                    <div class="now"></div>
+                    <div class="ctr-bar"></div>
+                </div>
+                <p class="time">
+                    <span class="current">00:00</span>
+                    /
+                    <span class="totalTime">00:00</span>
+                </p>
+            </div>
+            <!--控制按钮-->
+            <div class="ctr-btn">
+                <div class="prev"></div>
+                <div class="start"></div>
+                <div class="next"></div>
+                <div class="volume"></div>
+                <div class="mode"></div>
+            </div>
+
+        </div>
+    </div>
+    <!--音乐列表盒子-->
+    <div class="list-box">
+        <ul></ul>
+    </div>
+</div>
+
+<audio></audio>
+<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.js"></script>
+<script>
+    // 用来保存歌曲数据  我们将data模拟成后台传给我们的数据
+    // 后台一般情况下会传给我们json 我们就模拟一个json数据
+    // 一首歌曲需要包含哪些数据？
+    // 歌名  歌手名 专辑封面 歌曲播放地址
+    var data=[];
+
+    // 获取元素
+    // querySelector只能获取到一个元素 不是一个数组
+    var audio = document.querySelector('audio');
+    var pic = document.querySelector('.ctr-pic img');
+    var singer = document.querySelector('.singer span');
+    var strat = document.querySelector('.ctr-btn .start');
+    var prev = document.querySelector('.ctr-btn .prev');
+    var next = document.querySelector('.ctr-btn .next');
+    var currentTime = document.querySelector('.time .current');
+    var totalTime = document.querySelector('.time .totalTime');
+    var barBox = document.querySelector('.bar-box');
+    var ctrBar = document.querySelector('.ctr-bar');
+    var now = document.querySelector('.now');
+    var modeBtn = document.querySelector('.mode');
+    var listBox = document.querySelector('.list-box ul');
+    var searTxt = document.querySelector('#searTxt');
+    var searBtn=document.querySelector('#searBtn');;
+    var lis = null;
+    searBtn.addEventListener('click',function () {
+        //搜索音乐列表
+        //进行Ajax
+
+       // https://api.imjad.cn/cloudmusic/?type=search&s=出山
+       $.ajax({
+            url:'https://api.imjad.cn/cloudmusic/',
+            data:{
+                type:'search',
+                s:searTxt.value
+            },
+            type:'get',
+            success:function(data1) {
+                data=data1.result.songs;
+                var str = '';
+                for(var i = 0; i < data.length; i++){
+                    str += '<li><span>'+data[i].name+'</span>';
+                    for(var j=0;j<data[i].ar.length;j++){
+                        str+=data[i].ar[j].name+'  ';
+                    }
+                    str+='<span></span></li>';
+                }
+                listBox.innerHTML = str;
+                lis=document.querySelectorAll('li');
+                // lis[0].className = 'active';
+            },
+            error:function (err) {
+                console.log(err);
+            }
+
+        });
+    });
+
+    // var str = '';
+    // for(var i = 0; i < data.length; i++){
+    //     str += '<li><span>'+data[i].name+'</span><span>';
+    //     for(var j=0;j<data.length;j++){
+    //         str+=data[i].ar[j].name+'   ';
+    //     }
+    // str+='</span></li>'
+    // }
+    // listBox.innerHTML = str;
+    //
+    // var lis = document.querySelectorAll('li');
+    // lis[0].className = 'active';
+
+
+
+    // 标识当前第几首歌
+    var index = 0;
+    // 旋转角度
+    var rotateDeg = 0;
+    // 保存定时器
+    var timer = null;
+    // 标识当前播放模式  0代表顺序 1代表单曲 2代表随机
+    var mode = 0;
+    // 保存图片的positionY轴的值
+    var modeArr = [-206,-233,-73];
+    modeBtn.addEventListener('click',function () {
+        mode = ++mode > modeArr.length - 1 ? 0 : mode;
+        console.log(mode);
+        modeBtn.style.backgroundPositionY = modeArr[mode] + 'px';
+    });
+
+
+    // 播放
+    function play(){
+        pic.src=data[index].al.picUrl;
+        // 播放音乐
+        audio.play();
+        strat.style.backgroundPositionX=-27+'px';
+        // 播放按钮变成暂停
+
+        // 专辑封面旋转
+        // 在开启一个新的定时器之前 先清掉上一个定时器
+        clearInterval(timer);  // 清除定时器
+        timer = setInterval(function () {
+            rotateDeg++;
+            pic.style.transform = 'rotate('+ rotateDeg +'deg)';
+        },30);
+    }
+
+
+    $('.list-box ul').on('click','li',function () {
+        index = $(this).index();
+        console.log( data[index]);
+        audio.src='http://music.163.com/song/media/outer/url?id='+data[index].id+'.mp3';
+        init();
+        play();
+    });
+
+
+
+
+    // for(var i = 0; i < data.length; i++){
+    //     lis[i].index = i;
+    //     lis[i].addEventListener('click',function () {
+    //         // 先知道我点的哪一个li
+    //         // this就是那个li 但是是第几个
+    //         index = this.index;
+    //         init();
+    //         play();
+    //     });
+    // }
+
+    // 创建一个init方法
+    function init(){
+        // 初始化专辑封面，歌手歌曲名，播放路径，播放时间
+        // 初始化专辑封面，歌手名字，播放路径，播放时间
+        rotateDeg = 0;
+        //  pic.src=data[index].pic;// 初始化专辑封面
+        // // audio.src=data[index].url;// 播放路径
+        var songStr='';
+        for(var j=0;j<data[index].ar.length;j++){
+            songStr += data[index].ar[j].name+'  ';
+        }
+        singer.innerHTML=data[index].name+'---'+songStr;//歌手名字
+        // 切换列表选中项
+    //     for(var i = 0; i < data.length; i++){
+    //         lis[i].className = '';
+    //     }
+    //     lis[index].className = 'active';
+    // }
+
+
+
+    // 播放
+    strat.addEventListener('click',function () {
+        // audio.paused为true的时候是暂停的
+        if(audio.paused){
+            play();
+        }else{
+            // 暂停音乐
+            audio.pause();
+            // 播放按钮变成播放
+            strat.style.backgroundPositionX = 0 + 'px';
+            // 清除定时器
+            clearInterval(timer);
+        }
+    })
+
+    // 上一曲
+    prev.addEventListener('click',function () {
+        // 三元运算符
+        index = --index < 0 ? data.length - 1 : index;
+        audio.src='http://music.163.com/song/media/outer/url?id='+data[index].id+'.mp3';
+        init();
+        play();
+    })
+
+    // 下一曲
+    next.addEventListener('click',function () {
+        // 三元运算符
+        index = ++index > data.length - 1 ? 0 : index;
+        audio.src='http://music.163.com/song/media/outer/url?id='+data[index].id+'.mp3';
+        init();
+        play();
+    })
+
+    // NaN  ----  not a number
+    // 准备时间
+    // canplay 当音频文件准备完成后 触发canplay事件
+    audio.addEventListener('canplay',function () {
+        // 需要将音乐总时长转换成分钟数和秒钟数
+        var min = parseInt(audio.duration / 60);
+        var se = parseInt(audio.duration % 60);
+        totalTime.innerHTML = formatTime(min) + ':' + formatTime(se);
+
+        audio.addEventListener('timeupdate',function () {
+            var currentMin = parseInt(audio.currentTime / 60);
+            var currentSe = parseInt(audio.currentTime % 60);
+            currentTime.innerHTML = formatTime(currentMin) + ':' + formatTime(currentSe);
+
+            var left = audio.currentTime / audio.duration *  barBox.clientWidth;
+            ctrBar.style.left = left + 'px';
+            now.style.width = left + 'px';
+
+            if(audio.ended){
+                switch (mode) {
+                    case 0:
+                        index = ++index > data.length - 1 ? 0 : index;
+                        init();
+                        play();
+                        break;
+                    case 1:
+                        init();
+                        play();
+                        break;
+                    case 2:
+                        do{
+                            var randomNum = Math.floor(Math.random() * data.length);
+
+                        }while (randomNum === index);
+
+                        index = randomNum;
+
+                        // 递归算法
+                        // function getRandom() {
+                        //     var randomNum = Math.floor(Math.random() * data.length);
+                        //     if(randomNum === index){
+                        //         randomNum = getRandom();
+                        //     }
+                        //     return randomNum;
+                        // }
+                        // index = getRandom();
+                        init();
+                        play();
+                        break;
+                }
+
+            }
+        });
+
+        ctrBar.addEventListener('mousedown',function (e) {
+            console.log(ctrBar.offsetLeft);
+            ctrBar.addEventListener('mouseenter',function (e) {
+
+            });
+        });
+
+        ctrBar.addEventListener('mouseup',function () {
+
+        });
+
+        barBox.addEventListener('click',function (e) {
+            // 找到鼠标的位置
+            // 鼠标点击的对象的相对位置
+            // 当前鼠标点击的位置 / 总宽度 * 音乐总时长 = 当前音乐需要播放的位置
+            audio.currentTime = e.offsetX / barBox.clientWidth * audio.duration;
+            // console.log(barBox.clientWidth)
+        })
+    });
+
+    // 格式化时间格式
+    function formatTime(time) {
+        return time > 9 ? time : '0' + time;
+    }
+    }
+
+
+    window.addEventListener('keydown',function (e) {
+        // 检测按下了那个键
+        if(e.keyCode === 32){
+
+        }
+    })
+
+</script>
+
+</body>
+</html>
